@@ -39,7 +39,10 @@ find_package( Eigen3 REQUIRED )
 #直接将g2o作为submodule编译，请将g2o直接拷贝到${CMAKE_CURRENT_SOURCE_DIR}目录下
 add_subdirectory(g2o)
 #所需要的g2o库
-set(g2o_LIBS core types_slam3d solver_csparse stuff csparse_extension types_sba)
+set(g2o_LIBS core types_slam3d solver_csparse stuff csparse csparse_extension types_sba)
+if(G2O_USE_OPENGL)
+  list(APPEND g2o_LIBS opengl_helper)
+endif()
 
 # debug information
 message(STATUS "OpenCV path: ${OpenCV_DIR}/x64/${OpenCV_RUNTIME}")
@@ -59,6 +62,10 @@ target_link_libraries( ba_example_win
 )
 # 自动拷贝dll文件到输出目录下
 if(WIN32)
+  add_custom_command(TARGET ba_example_win PRE_BUILD
+    COMMAND
+    ${CMAKE_COMMAND} -E copy ${g2o_BINARY_DIR}/g2o/config.h ${CMAKE_CURRENT_SOURCE_DIR}/g2o/
+  )
   foreach(g2olib ${g2o_LIBS})
     add_custom_command(TARGET ba_example_win POST_BUILD
       COMMAND
