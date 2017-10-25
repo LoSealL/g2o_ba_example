@@ -10,24 +10,25 @@
 
 # ！！！该工程并无Windows依赖，所以正常情况下应该能直接在Linux下编译运行。
 
-cmake_minimum_required( VERSION 3.8.1 )
+cmake_minimum_required( VERSION 3.5.1 )
 
 project( g2o_ba_example_win )
 #使用默认Build type和CXX_FLAGS
 #使用c++11
 set(CMAKE_CXX_STANDARD 11)
-add_definitions(-D_WINDOWS)
-if(MSVC)
-  if(MSVC_VERSION LESS 1900)
-    message(FATAL_ERROR "Don't support VS2013 or below")
-  elseif(MSVC_VERSION EQUAL 1900)
-    set(OpenCV_RUNTIME vc14)
-  elseif(MSVC_VERSION EQUAL 1910 OR MSVC_VERSION EQUAL 1911)
-    set(OpenCV_RUNTIME vc15)
-  endif()
-endif(MSVC)
 
-if(NOT WIN32)  
+if(WIN32)
+  add_definitions(-D_WINDOWS)
+  if(MSVC)
+    if(MSVC_VERSION LESS 1900)
+      message(FATAL_ERROR "Don't support VS2013 or below")
+    elseif(MSVC_VERSION EQUAL 1900)
+      set(OpenCV_RUNTIME vc14)
+    elseif(MSVC_VERSION EQUAL 1910 OR MSVC_VERSION EQUAL 1911)
+      set(OpenCV_RUNTIME vc15)
+    endif()
+  endif(MSVC)
+else()  
   # 我没有找到windows下的cholmod库（如有请告知）
   find_package( Cholmod )
 endif()
