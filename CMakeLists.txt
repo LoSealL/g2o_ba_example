@@ -15,7 +15,7 @@ cmake_minimum_required( VERSION 3.5.1 )
 project( g2o_ba_example_win )
 #使用默认Build type和CXX_FLAGS
 #使用c++11
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 if(WIN32)
   add_definitions(-D_WINDOWS)
@@ -28,9 +28,9 @@ if(WIN32)
       set(OpenCV_RUNTIME vc15)
     endif()
   endif(MSVC)
-else()  
+else()
   # 我没有找到windows下的cholmod库（如有请告知）
-  find_package( Cholmod )
+  # find_package( Cholmod )
 endif()
 #在windows下需要手动指定OpenCV和Eigen库目录位置
 list( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules )
@@ -52,11 +52,12 @@ include_directories(
   ${EIGEN3_INCLUDE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/g2o
   ${CMAKE_CURRENT_SOURCE_DIR}/g2o/EXTERNAL/csparse
+  ${g2o_BINARY_DIR}
 )
 
 add_executable( ba_example_win main.cpp )
 
-target_link_libraries( ba_example_win 
+target_link_libraries( ba_example_win
   ${OpenCV_LIBS}
   ${g2o_LIBS}
 )
