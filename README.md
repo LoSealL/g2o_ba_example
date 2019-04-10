@@ -1,9 +1,39 @@
 # g2o_ba_example_win
 使项目在windows下编译成功。得益于最近g2o对windows的支持。
+
+**2019.4.10更新**：使用外部库形式编译eigen3和g2o。升级对最新eigen3和g2o支持。
+
 # 使用
-1. 用CMake GUI，生成器选择VS 2017 64（或VS 2015 64），第一次configure后会报错，手动指定opencv和eigen的库目录后再次configure
-2. 使用build.bat，在命令行输入`build <vs-version> <path-to-opencv> <path-to-eigen>`，如`build 2015 C:\SDK\opencv\build C:\SDK\eigen3`
-注意opencv的路径要指定到包含`OpenCVConfig.cmake`的目录下，比如opencv/build
+在Windows下：
+
+1. 用CMake GUI，生成器选择VS 2017 64（或VS 2015 64），第一次configure后会报错，手动指定opencv~~和eigen~~的库目录后再次configure
+
+2. 输入cmake 命令：
+
+  ```shell
+  cmake --build . --config Release
+  # 测试
+  ./ba_example_win ../data/1.png ../data/2.png
+  ```
+
+在Linux下：
+
+```shell
+mkdir build && cd build
+# 使用SuiteSparse，SuiteSparse路径下含有include和lib文件夹
+# 假设SuiteSparse不在默认搜索路径下
+cmake -DCSPARSE_DIR=/xxx/xxx/SuiteSparse ..
+make -j8
+# 不使用SuiteSparse，（包括SuiteSparse头文件和库不在默认搜索路径下）
+cmake ..
+make -j8
+# 检查是否用SuiteSparse还是G2O自带的CSPARSE，查看build/g2o/lib/libg2o_csparse.so文件是否存在（存在：G2O自带的CSPARSE
+
+# 测试
+./ba_example_win ../data/1.png ../data/2.png
+```
+
+
 
 以下为原README
 ==============================================================================

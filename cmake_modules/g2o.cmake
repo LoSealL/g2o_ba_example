@@ -29,10 +29,9 @@ if(CSPARSE_FOUND)
   list(APPEND G2O_LIBS cxsparse)
   list(APPEND g2o_INCLUDE_DIRS ${CSPARSE_INCLUDE_DIR})
   list(APPEND g2o_LIBRARY_DIRS ${CSPARSE_LIBRARY_DIR})
-  message(STATUS ${CSPARSE_LIBRARY_DIR})
 else()
   list(APPEND g2o_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/g2o/include/g2o/EXTERNAL/csparse)
-  list(APPEND G2O_LIBS g2o_csparse)
+  list(APPEND G2O_LIBS g2o_ext_csparse)
 endif()
 if(WIN32)
   set(g2o_DLL_DIRS ${CMAKE_CURRENT_BINARY_DIR}/g2o/bin)
@@ -47,7 +46,8 @@ elseif(UNIX)
   endforeach()
   set(G2O_LIBS ${G2O_LIBS_UNIX})
 endif()
-
+message(STATUS ${CSPARSE_INCLUDE_DIR})
+message(STATUS ${CSPARSE_LIBRARY})
 ExternalProject_Add(g2o
   PREFIX g2o
   DEPENDS eigen
