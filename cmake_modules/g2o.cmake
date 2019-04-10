@@ -50,6 +50,7 @@ endif()
 
 ExternalProject_Add(g2o
   PREFIX g2o
+  DEPENDS eigen
   GIT_REPOSITORY ${g2o_URL}
   GIT_TAG ${g2o_TAG}
   CMAKE_CACHE_ARGS
