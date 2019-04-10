@@ -12,9 +12,9 @@
 
 cmake_minimum_required( VERSION 3.5.1 )
 
-project( g2o_ba_example_win )
+project(g2o_ba_example_win)
 #使用默认Build type和CXX_FLAGS
-#使用c++11
+#使用c++14
 set(CMAKE_CXX_STANDARD 14)
 
 if(WIN32)
@@ -32,55 +32,39 @@ else()
   # 我没有找到windows下的cholmod库（如有请告知）
   # find_package( Cholmod )
 endif()
-#在windows下需要手动指定OpenCV和Eigen库目录位置
-list( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules )
-find_package( OpenCV REQUIRED )
-find_package( Eigen3 REQUIRED )
-#直接将g2o作为submodule编译，请将g2o直接拷贝到${CMAKE_CURRENT_SOURCE_DIR}目录下
-add_subdirectory(g2o)
+# 在windows下需要手动指定OpenCV和Eigen库目录位置
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+find_package(OpenCV REQUIRED)
+find_package(CSparse QUIET)  # Help g2o find SuiteSparse
+# 引用外部库
+include(eigen3)
+include(g2o)
 #所需要的g2o库
-set(g2o_LIBS core types_slam3d solver_csparse stuff csparse csparse_extension types_sba)
+set(link_libs ${OpenCV_LIBS} ${G2O_LIBS})
 if(G2O_USE_OPENGL)
-  list(APPEND g2o_LIBS opengl_helper)
+  list(APPEND link_libs opengl_helper)
 endif()
 
-# debug information
-message(STATUS "OpenCV path: ${OpenCV_DIR}/x64/${OpenCV_RUNTIME}")
-message(STATUS "Eigen path: ${EIGEN3_INCLUDE_DIR}")
+add_executable(ba_example_win main.cpp)
+add_dependencies(ba_example_win g2o eigen)
+target_link_libraries(ba_example_win ${link_libs})
 
-include_directories(
-  ${EIGEN3_INCLUDE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/g2o
-  ${CMAKE_CURRENT_SOURCE_DIR}/g2o/EXTERNAL/csparse
-  ${g2o_BINARY_DIR}
-)
-
-add_executable( ba_example_win main.cpp )
-
-target_link_libraries( ba_example_win
-  ${OpenCV_LIBS}
-  ${g2o_LIBS}
-)
 # 自动拷贝dll文件到输出目录下
 if(WIN32)
-  add_custom_command(TARGET ba_example_win PRE_BUILD
-    COMMAND
-    ${CMAKE_COMMAND} -E copy ${g2o_BINARY_DIR}/g2o/config.h ${CMAKE_CURRENT_SOURCE_DIR}/g2o/
-  )
-  foreach(g2olib ${g2o_LIBS})
+  foreach(fp ${G2O_DLLS})
     add_custom_command(TARGET ba_example_win POST_BUILD
       COMMAND
-      ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${g2olib}> $<TARGET_FILE_DIR:ba_example_win>
+      ${CMAKE_COMMAND} -E copy_if_different ${fp} $<TARGET_FILE_DIR:ba_example_win>
       VERBATIM
     )
   endforeach()
   add_custom_command(TARGET ba_example_win POST_BUILD
     COMMAND
-    ${CMAKE_COMMAND} -E copy ${OpenCV_DIR}/x64/${OpenCV_RUNTIME}/bin/opencv_world330.dll $<TARGET_FILE_DIR:ba_example_win>
+    ${CMAKE_COMMAND} -E copy_if_different ${OpenCV_DIR}/x64/${OpenCV_RUNTIME}/bin/opencv_world330.dll $<TARGET_FILE_DIR:ba_example_win>
     COMMAND
-    ${CMAKE_COMMAND} -E copy ${OpenCV_DIR}/x64/${OpenCV_RUNTIME}/bin/opencv_world330d.dll $<TARGET_FILE_DIR:ba_example_win>
+    ${CMAKE_COMMAND} -E copy_if_different ${OpenCV_DIR}/x64/${OpenCV_RUNTIME}/bin/opencv_world330d.dll $<TARGET_FILE_DIR:ba_example_win>
     COMMAND
-    ${CMAKE_COMMAND} -E copy ${OpenCV_DIR}/x64/${OpenCV_RUNTIME}/bin/opencv_ffmpeg330_64.dll $<TARGET_FILE_DIR:ba_example_win>
+    ${CMAKE_COMMAND} -E copy_if_different ${OpenCV_DIR}/x64/${OpenCV_RUNTIME}/bin/opencv_ffmpeg330_64.dll $<TARGET_FILE_DIR:ba_example_win>
     VERBATIM
   )
-endif()
+endif(WIN32)
